@@ -3,6 +3,7 @@ const route = express.Router();
 const ArticleController = require("../controller/ArticlesController");
 route.get("/getByCategoryId/:category_id",ArticleController.getByCategory);
 route.get("/getByArticleId/:id",ArticleController.getById);
+route.get("/search",ArticleController.searchArticle);
 route.get("/",ArticleController.getAll)
 route.post("/", ArticleController.create);
 route.put("/:id", ArticleController.update);

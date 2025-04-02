@@ -1,4 +1,4 @@
-const { where } = require("sequelize");
+const { where,Op } = require("sequelize");
 const db = require("../models");
 const Article = db.articles;
 const ArticleCategory = db.article_category;
@@ -16,6 +16,7 @@ class ArticleController {
             as: "article_categories",
           },
         ],
+        distinct:true,
         limit,
         offset,
       });
@@ -46,6 +47,7 @@ class ArticleController {
             where: { category_id }, // Lọc theo danh mục
           },
         ],
+        distinct:true,
         limit,
         offset,
       });
@@ -74,6 +76,40 @@ class ArticleController {
       });
     } catch (error) {
       res.status(500).json({ message: "Lỗi: " + error });
+    }
+  }
+  async searchArticle(req,res){
+    try {
+      let { page, limit, keyword } = req.query;
+      page = parseInt(page) || 1;
+      limit = parseInt(limit) || 10;
+      const offset = (page - 1) * limit;
+      const {count,rows} = await Article.findAndCountAll({
+        where:{
+          title: {
+            [Op.like]: `%${keyword}%`
+          },
+        },include: [
+          {
+            model: ArticleCategory,
+            as: "article_categories",
+          },
+        ],
+        distinct:true,
+        limit,
+        offset,
+      });
+      if(count===0){
+        return res.status(404).json({message:"Không tìm thấy"});
+      }
+      res.status(200).json({
+        totalItems: count,
+        totalPages: Math.ceil(count / limit),
+        currentPage: page,
+        articles: rows,
+      });
+    } catch (error) {
+      res.status(500).json({message:"Lỗi: "+error});
     }
   }
   async create(req, res) {
