@@ -27,5 +27,16 @@ class CommentController{
             res.status(500).json({message:"Lỗi: "+error});
         }
     }
+    async deleteComment(req,res){
+        try {
+            const {id} = req.params;
+            const comment = Comment.findOne({where:{id}});
+            if(!comment) return res.status(404).json({message:"Không tìm thấy"});
+            await Comment.destroy({where:{id}});
+            res.status(200).json({message:"Xóa thành công"});
+        } catch (error) {
+            res.status(500).json({message:"Lỗi: "+error});
+        }
+    }
 }
 module.exports = new CommentController ();

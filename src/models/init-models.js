@@ -4,7 +4,6 @@ var _article_category = require("./article_category");
 var _articles = require("./articles");
 var _category = require("./category");
 var _comment = require("./comment");
-var _report = require("./report");
 var _user = require("./user");
 
 function initModels(sequelize) {
@@ -13,7 +12,6 @@ function initModels(sequelize) {
   var articles = _articles(sequelize, DataTypes);
   var category = _category(sequelize, DataTypes);
   var comment = _comment(sequelize, DataTypes);
-  var report = _report(sequelize, DataTypes);
   var user = _user(sequelize, DataTypes);
 
   articles.belongsToMany(category, { as: 'category_id_categories', through: article_category, foreignKey: "article_id", otherKey: "category_id" });
@@ -24,12 +22,8 @@ function initModels(sequelize) {
   articles.hasMany(comment, { as: "comments", foreignKey: "article_id"});
   article_category.belongsTo(category, { as: "category", foreignKey: "category_id"});
   category.hasMany(article_category, { as: "article_categories", foreignKey: "category_id"});
-  report.belongsTo(comment, { as: "comment", foreignKey: "comment_id"});
-  comment.hasMany(report, { as: "reports", foreignKey: "comment_id"});
   comment.belongsTo(user, { as: "user", foreignKey: "user_id"});
   user.hasMany(comment, { as: "comments", foreignKey: "user_id"});
-  report.belongsTo(user, { as: "user", foreignKey: "user_id"});
-  user.hasMany(report, { as: "reports", foreignKey: "user_id"});
 
   return {
     admin,
@@ -37,7 +31,6 @@ function initModels(sequelize) {
     articles,
     category,
     comment,
-    report,
     user,
   };
 }
