@@ -17,7 +17,11 @@ class CommentController{
         try {
             const {article_id} = req.params;
             const comments = await Comment.findAll({
-                where:{article_id}
+                where:{article_id},
+                include:{
+                    model:db.user,
+                    as: "user"
+                }
             });
             if(comments.length===0){
                 return res.status(404).json({message:"Không tìm thấy"});
