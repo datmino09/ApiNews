@@ -20,11 +20,10 @@ class UserController {
 
     async googleLogin(req, res) {
         try {
-            console.log("Received Google Login Request:", req.body);
             const { credential } = req.body;
             if (!credential) return res.status(400).json({ error: "Missing token" });
 
-            // Xác thực token Google
+
             const ticket = await client.verifyIdToken({
                 idToken: credential,
                 audience: GOOGLE_CLIENT_ID,
@@ -33,14 +32,12 @@ class UserController {
             const payload = ticket.getPayload();
             const { sub, name, email, picture } = payload;
 
-            // Kiểm tra xem user đã tồn tại chưa
+
             let user = await User.findOne({ where: { google_id: sub } });
 
             if (user) {
-                // Cập nhật thông tin nếu user đã tồn tại
                 await user.update({ name, gmail: email, avatar: picture });
             } else {
-                // Nếu chưa có user, tạo mới
                 user = await User.create({
                     google_id: sub,
                     name,
@@ -48,12 +45,9 @@ class UserController {
                     avatar: picture,
                 });
             }
-
-            // Tạo token JWT
             const token = jwt.sign({ id: user.id, google_id: sub }, JWT_SECRET, {
                 expiresIn: "7d",
             });
-            console.log(res);
             res.json({ message: "Login successful", token, user });
         } catch (error) {
             console.error("Google Login Error:", error);

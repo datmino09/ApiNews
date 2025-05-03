@@ -44,7 +44,7 @@ class ArticleController {
           {
             model: ArticleCategory,
             as: "article_categories",
-            where: { category_id }, // Lọc theo danh mục
+            where: { category_id },
           },
         ],
         distinct:true,
@@ -114,7 +114,8 @@ class ArticleController {
   }
   async create(req, res) {
     try {
-      const { title, content, image, author, category_ids } = req.body; // category_id là array nha
+      const { title, content, author, category_ids } = req.body; 
+      const image = 'http://localhost:3001/uploads/'+req.file.filename;
 
       if (!title || !content || !image || !author) {
         return res.status(400).json({ message: "Thiếu thông tin bài viết!" });
@@ -148,11 +149,10 @@ class ArticleController {
       }
       await article.update({ title, content, image, author });
       if (Array.isArray(category_ids)) {
-        // Lấy danh sách các danh mục hiện tại của bài viết
         const currentCategories = await article.getCategory_id_categories();
         const currentCategoryIds = currentCategories.map((cat) => cat.id);
 
-        // Xác định các danh mục cần thêm và cần xóa
+
         const categoriesToAdd = category_ids.filter(
           (id) => !currentCategoryIds.includes(id)
         );
@@ -160,12 +160,11 @@ class ArticleController {
           (id) => !category_ids.includes(id)
         );
 
-        // Thêm các mối quan hệ mới
+
         if (categoriesToAdd.length > 0) {
           await article.addCategory_id_categories(categoriesToAdd);
         }
 
-        // Xóa các mối quan hệ không còn tồn tại
         if (categoriesToRemove.length > 0) {
           await article.removeCategory_id_categories(categoriesToRemove);
         }
